@@ -12,6 +12,7 @@ export default function StudentApp() {
   const [userId, setUserId] = useState(null);
   const [showTable, setShowTable] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
+  const [showNameInput, setShowNameInput] = useState(true);
 
   const rowTitles = [
     "통합적 관점",
@@ -22,6 +23,17 @@ export default function StudentApp() {
   ];
   const colTitles = ["Study", "Try", "Apply", "Reflect"];
 
+  const cellWords = {
+    0: 'S', 1: 'T', 2: 'A', 3: 'R'
+  };
+
+  const cellMessages = {
+    S: '해당 단원의 워크북 내용을 모두 학습하였나요?',
+    T: '해당 단원의 교구를 활용하여 학습에 적극적으로 참여하였나요?',
+    A: '해당 단원의 슬라이딩 퍼즐 문제의 정답을 맞췄나요?',
+    R: '해당 단원의 보석 십자수를 완성했나요?'
+  };
+
   const fetchUser = async (name) => {
     const { data } = await supabase.from('user_progress').select('*').eq('user_name', name).single();
     return data;
@@ -29,6 +41,7 @@ export default function StudentApp() {
 
   const handleNameSubmit = async () => {
     const existingUser = await fetchUser(inputName);
+    setShowNameInput(false);
     if (existingUser) {
       setIsNewUser(false);
       setShowPasswordPrompt(true);
@@ -68,6 +81,11 @@ export default function StudentApp() {
 
   const handleToggleCell = async (colIdx, rowIdx) => {
     const key = `${colIdx}-${rowIdx}`;
+    const letter = cellWords[colIdx];
+    const confirmMsg = cellMessages[letter];
+    const confirmed = window.confirm(confirmMsg);
+    if (!confirmed) return;
+
     const updated = { ...cellData };
     if (updated[key]) {
       delete updated[key];
@@ -75,7 +93,6 @@ export default function StudentApp() {
       updated[key] = true;
     }
     setCellData(updated);
-
     await supabase.from('user_progress').update({ cell_data: updated }).eq('id', userId);
   };
 
@@ -84,17 +101,18 @@ export default function StudentApp() {
     setUserId(null);
     setCellData({});
     setShowTable(false);
+    setShowNameInput(true);
   };
 
   useEffect(() => {
     if (Object.values(cellData).filter(Boolean).length === 20) {
-      setShowCongrats(true);
+      setTimeout(() => setShowCongrats(true), 300);
     }
   }, [cellData]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-300 flex flex-col items-center justify-center font-['Noto_Sans_KR']">
-      {!showTable ? (
+      {showNameInput && !showTable && (
         <div className="text-center">
           <h1 className="text-5xl font-bold mb-8 text-yellow-900">⭐ Star Maker</h1>
           <input
@@ -112,7 +130,9 @@ export default function StudentApp() {
             이름 조회
           </button>
         </div>
-      ) : (
+      )}
+
+      {showTable && (
         <div className="text-center">
           <h2 className="text-3xl font-bold mb-4 text-yellow-800">🌟 {userName}님의 STAR 학습표</h2>
           <div className="overflow-x-auto">
@@ -131,7 +151,7 @@ export default function StudentApp() {
                     <td className="bg-yellow-200 border p-2 font-semibold">{rowTitle}</td>
                     {colTitles.map((_, colIdx) => {
                       const key = `${colIdx}-${rowIdx}`;
-                      const display = cellData[key] ? "★" : { 0: 'S', 1: 'T', 2: 'A', 3: 'R' }[colIdx];
+                      const display = cellData[key] ? "★" : cellWords[colIdx];
                       return (
                         <td
                           key={key}
@@ -154,7 +174,8 @@ export default function StudentApp() {
             onClick={handleComplete}
             className="mt-6 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
           >
-            완료</button>
+            완료
+          </button>
         </div>
       )}
 
@@ -184,7 +205,7 @@ export default function StudentApp() {
       {showCongrats && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
           <div className="text-yellow-400 text-8xl animate-bounce mb-6">🌟</div>
-          <h1 className="text-white text-3xl font-bold">축하합니다! 모든 별을 모았습니다!</h1>
+          <h1 className="text-white text-3xl font-bold">당신은 이제 STAR</h1>
           <button
             onClick={() => setShowCongrats(false)}
             className="mt-6 px-6 py-2 bg-white text-yellow-700 font-semibold rounded hover:bg-yellow-100"
