@@ -13,6 +13,7 @@ export default function StudentApp() {
   const [showTable, setShowTable] = useState(false);
   const [showCongrats, setShowCongrats] = useState(false);
   const [showNameInput, setShowNameInput] = useState(true);
+  const [alreadyStar, setAlreadyStar] = useState(false);
 
   const rowTitles = [
     "통합적 관점",
@@ -44,9 +45,11 @@ export default function StudentApp() {
     setShowNameInput(false);
     if (existingUser) {
       setIsNewUser(false);
+      setPassword('');
       setShowPasswordPrompt(true);
     } else {
       setIsNewUser(true);
+      setPassword('');
       setShowPasswordPrompt(true);
     }
   };
@@ -73,6 +76,9 @@ export default function StudentApp() {
         setCellData(user.cell_data || {});
         setShowTable(true);
         setShowPasswordPrompt(false);
+        if (Object.values(user.cell_data || {}).filter(Boolean).length === 20) {
+          setAlreadyStar(true);
+        }
       } else {
         alert('비밀번호가 틀렸습니다.');
       }
@@ -82,9 +88,15 @@ export default function StudentApp() {
   const handleToggleCell = async (colIdx, rowIdx) => {
     const key = `${colIdx}-${rowIdx}`;
     const letter = cellWords[colIdx];
-    const confirmMsg = cellMessages[letter];
-    const confirmed = window.confirm(confirmMsg);
-    if (!confirmed) return;
+
+    if (cellData[key]) {
+      const confirmed = window.confirm('재학습하시겠습니까?');
+      if (!confirmed) return;
+    } else {
+      const confirmMsg = cellMessages[letter];
+      const confirmed = window.confirm(confirmMsg);
+      if (!confirmed) return;
+    }
 
     const updated = { ...cellData };
     if (updated[key]) {
@@ -94,6 +106,12 @@ export default function StudentApp() {
     }
     setCellData(updated);
     await supabase.from('user_progress').update({ cell_data: updated }).eq('id', userId);
+
+    if (Object.values(updated).filter(Boolean).length === 20) {
+      setShowCongrats(true);
+    } else {
+      setAlreadyStar(false);
+    }
   };
 
   const handleComplete = () => {
@@ -102,60 +120,80 @@ export default function StudentApp() {
     setCellData({});
     setShowTable(false);
     setShowNameInput(true);
+    setAlreadyStar(false);
   };
 
-  useEffect(() => {
-    if (Object.values(cellData).filter(Boolean).length === 20) {
-      setTimeout(() => setShowCongrats(true), 300);
-    }
-  }, [cellData]);
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-300 flex flex-col items-center justify-center font-['Noto_Sans_KR']">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-300 flex flex-col items-center py-8 font-['Noto_Sans_KR']">
+      <h1 className="text-5xl font-bold text-yellow-900 mb-8">⭐ Star Maker</h1>
+
       {showNameInput && !showTable && (
         <div className="text-center">
-          <h1 className="text-5xl font-bold mb-8 text-yellow-900">⭐ Star Maker</h1>
-          <input
-            type="text"
-            value={inputName}
-            onChange={(e) => setInputName(e.target.value)}
-            placeholder="이름을 입력하세요"
-            className="p-3 border rounded w-64 mb-4"
-          />
-          <br />
-          <button
-            onClick={handleNameSubmit}
-            className="px-6 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-          >
-            이름 조회
-          </button>
+          <p className="mb-2 text-yellow-800">이름을 입력하세요</p>
+          <div className="flex justify-center mb-4">
+            <input
+              type="text"
+              value={inputName}
+              onChange={(e) => setInputName(e.target.value)}
+              className="p-3 border rounded-l w-64"
+            />
+            <button
+              onClick={handleNameSubmit}
+              className="px-6 py-3 bg-yellow-500 text-white rounded-r hover:bg-yellow-600"
+            >
+              이름 조회
+            </button>
+          </div>
         </div>
       )}
 
-      {showTable && (
+      {showPasswordPrompt && (
         <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4 text-yellow-800">🌟 {userName}님의 STAR 학습표</h2>
-          <div className="overflow-x-auto">
-            <table className="border-collapse shadow-xl">
+          <p className="mb-2 text-yellow-800">{isNewUser ? '비밀번호를 설정해주세요.' : '설정한 비밀번호를 입력하세요.'}</p>
+          <div className="flex justify-center mb-4">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="p-3 border rounded"
+            />
+            <button
+              onClick={handlePasswordSubmit}
+              className="ml-2 px-6 py-3 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showTable && !showCongrats && (
+        <div className="text-center w-full px-4">
+          {alreadyStar && (
+            <div className="text-2xl text-yellow-800 font-bold mb-2">🎉 당신은 이미 STAR</div>
+          )}
+          <h2 className="text-2xl font-semibold text-yellow-900 mb-4">{userName}님의 STAR 학습표</h2>
+          <div className="overflow-x-auto max-w-4xl mx-auto">
+            <table className="border-collapse shadow-xl w-full">
               <thead>
                 <tr>
-                  <th className="bg-yellow-300 p-2 border">영역</th>
+                  <th className="bg-yellow-300 p-4 border text-lg">영역</th>
                   {colTitles.map((title, idx) => (
-                    <th key={idx} className="bg-yellow-300 p-2 border">{title}</th>
+                    <th key={idx} className="bg-yellow-300 p-4 border text-lg">{title}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {rowTitles.map((rowTitle, rowIdx) => (
                   <tr key={rowIdx}>
-                    <td className="bg-yellow-200 border p-2 font-semibold">{rowTitle}</td>
+                    <td className="bg-yellow-200 border p-4 text-base font-semibold">{rowTitle}</td>
                     {colTitles.map((_, colIdx) => {
                       const key = `${colIdx}-${rowIdx}`;
                       const display = cellData[key] ? "★" : cellWords[colIdx];
                       return (
                         <td
                           key={key}
-                          className="border text-center p-2 cursor-pointer hover:bg-yellow-100"
+                          className="border text-center p-4 text-xl cursor-pointer hover:bg-yellow-100"
                           onClick={() => handleToggleCell(colIdx, rowIdx)}
                         >
                           {display}
@@ -167,38 +205,12 @@ export default function StudentApp() {
               </tbody>
             </table>
           </div>
-          <p className="mt-4 text-lg text-yellow-800 font-semibold">
-            ⭐ 진행률: {Object.values(cellData).filter(Boolean).length} / 20
-          </p>
           <button
             onClick={handleComplete}
-            className="mt-6 px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
+            className="mt-6 px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
           >
             완료
           </button>
-        </div>
-      )}
-
-      {showPasswordPrompt && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm text-center">
-            <h2 className="text-lg font-semibold mb-4">
-              {isNewUser ? '비밀번호 설정' : '비밀번호 입력'}
-            </h2>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="border p-2 w-full rounded mb-4"
-              placeholder="비밀번호 입력"
-            />
-            <div className="flex justify-center space-x-4">
-              <button onClick={() => setShowPasswordPrompt(false)} className="bg-gray-300 px-4 py-2 rounded">취소</button>
-              <button onClick={handlePasswordSubmit} className="bg-yellow-500 text-white px-4 py-2 rounded">
-                확인
-              </button>
-            </div>
-          </div>
         </div>
       )}
 
@@ -207,7 +219,7 @@ export default function StudentApp() {
           <div className="text-yellow-400 text-8xl animate-bounce mb-6">🌟</div>
           <h1 className="text-white text-3xl font-bold">당신은 이제 STAR</h1>
           <button
-            onClick={() => setShowCongrats(false)}
+            onClick={handleComplete}
             className="mt-6 px-6 py-2 bg-white text-yellow-700 font-semibold rounded hover:bg-yellow-100"
           >
             닫기
