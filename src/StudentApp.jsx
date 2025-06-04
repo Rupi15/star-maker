@@ -77,10 +77,6 @@ export default function StudentApp() {
     setCellData(updated);
 
     await supabase.from('user_progress').update({ cell_data: updated }).eq('id', userId);
-
-    if (Object.keys(updated).length === 20) {
-      setShowCongrats(true);
-    }
   };
 
   const handleComplete = () => {
@@ -89,6 +85,12 @@ export default function StudentApp() {
     setCellData({});
     setShowTable(false);
   };
+
+  useEffect(() => {
+    if (Object.values(cellData).filter(Boolean).length === 20) {
+      setShowCongrats(true);
+    }
+  }, [cellData]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-300 flex flex-col items-center justify-center font-['Noto_Sans_KR']">
