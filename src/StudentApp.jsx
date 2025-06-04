@@ -131,11 +131,11 @@ export default function StudentApp() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-300 flex items-center justify-center font-['Noto_Sans_KR']">
-      <div className="flex flex-col items-center">
-        <h1 className="text-5xl font-bold text-yellow-900 mb-8">⭐ Star Maker ⭐</h1>
+      <div className="flex flex-col items-center justify-center w-full max-w-5xl px-4 text-center">
+        <h1 className="text-5xl font-bold text-yellow-900 mb-10">⭐ Star Maker ⭐</h1>
 
         {showNameInput && !showTable && (
-          <div className="text-center">
+          <div>
             <p className="mb-2 text-yellow-800">이름을 입력하세요</p>
             <div className="flex justify-center mb-4">
               <input
@@ -155,7 +155,7 @@ export default function StudentApp() {
         )}
 
         {showPasswordPrompt && (
-          <div className="text-center">
+          <div>
             <p className="mb-2 text-yellow-800">{isNewUser ? '비밀번호를 설정해주세요.' : '설정한 비밀번호를 입력하세요.'}</p>
             <div className="flex justify-center mb-4">
               <input
@@ -175,19 +175,19 @@ export default function StudentApp() {
         )}
 
         {showTable && !showCongrats && (
-          <div className="text-center w-full px-4">
+          <div className="w-full">
             {alreadyStar && (
               <div className="text-2xl text-yellow-800 font-bold mb-2">당신은 이미 STAR</div>
             )}
             <h2 className="text-2xl font-semibold text-yellow-900 mb-4">{userName}님의 STAR 학습표</h2>
             <p className="text-lg mb-4 text-yellow-800">⭐ 진행률: {progressCount} / 20</p>
-            <div className="overflow-x-auto max-w-5xl mx-auto">
+            <div className="overflow-x-auto">
               <table className="border-collapse shadow-xl w-full">
                 <thead>
                   <tr>
                     <th className="bg-yellow-300 p-6 border text-xl">영역</th>
                     {colTitles.map((title, idx) => (
-                      <th key={idx} className="bg-yellow-300 p-6 border text-xl">{title}</th>
+                      <th key={idx} className="bg-yellow-300 p-6 border text-xl w-40">{title}</th>
                     ))}
                   </tr>
                 </thead>
@@ -224,7 +224,7 @@ export default function StudentApp() {
 
         {showCongrats && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
-            <div className="text-yellow-400 text-9xl leading-none mb-4">
+            <div className="text-yellow-400 text-[8rem] leading-none mb-4">
               🌟🌟🌟<br/>🌟🌟🌟<br/>🌟🌟🌟
             </div>
             <h1 className="text-white text-4xl font-bold mt-2">당신은 이제 STAR</h1>
