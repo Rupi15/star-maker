@@ -120,12 +120,18 @@ export default function StudentApp() {
     setCellData({});
     setShowTable(false);
     setShowNameInput(true);
+    setShowCongrats(false);
+    setShowPasswordPrompt(false);
     setAlreadyStar(false);
+    setInputName('');
+    setPassword('');
   };
+
+  const progressCount = Object.values(cellData).filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-300 flex flex-col items-center py-8 font-['Noto_Sans_KR']">
-      <h1 className="text-5xl font-bold text-yellow-900 mb-8">⭐ Star Maker</h1>
+      <h1 className="text-5xl font-bold text-yellow-900 mb-8">⭐ Star Maker ⭐</h1>
 
       {showNameInput && !showTable && (
         <div className="text-center">
@@ -170,30 +176,31 @@ export default function StudentApp() {
       {showTable && !showCongrats && (
         <div className="text-center w-full px-4">
           {alreadyStar && (
-            <div className="text-2xl text-yellow-800 font-bold mb-2">🎉 당신은 이미 STAR</div>
+            <div className="text-2xl text-yellow-800 font-bold mb-2">당신은 이미 STAR</div>
           )}
           <h2 className="text-2xl font-semibold text-yellow-900 mb-4">{userName}님의 STAR 학습표</h2>
-          <div className="overflow-x-auto max-w-4xl mx-auto">
+          <p className="text-lg mb-4 text-yellow-800">⭐ 진행률: {progressCount} / 20</p>
+          <div className="overflow-x-auto max-w-5xl mx-auto">
             <table className="border-collapse shadow-xl w-full">
               <thead>
                 <tr>
-                  <th className="bg-yellow-300 p-4 border text-lg">영역</th>
+                  <th className="bg-yellow-300 p-5 border text-xl">영역</th>
                   {colTitles.map((title, idx) => (
-                    <th key={idx} className="bg-yellow-300 p-4 border text-lg">{title}</th>
+                    <th key={idx} className="bg-yellow-300 p-5 border text-xl">{title}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {rowTitles.map((rowTitle, rowIdx) => (
                   <tr key={rowIdx}>
-                    <td className="bg-yellow-200 border p-4 text-base font-semibold">{rowTitle}</td>
+                    <td className="bg-yellow-200 border p-5 text-lg font-semibold whitespace-nowrap">{rowTitle}</td>
                     {colTitles.map((_, colIdx) => {
                       const key = `${colIdx}-${rowIdx}`;
                       const display = cellData[key] ? "★" : cellWords[colIdx];
                       return (
                         <td
                           key={key}
-                          className="border text-center p-4 text-xl cursor-pointer hover:bg-yellow-100"
+                          className="border text-center p-5 text-2xl cursor-pointer hover:bg-yellow-100"
                           onClick={() => handleToggleCell(colIdx, rowIdx)}
                         >
                           {display}
@@ -216,8 +223,11 @@ export default function StudentApp() {
 
       {showCongrats && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
-          <div className="text-yellow-400 text-8xl animate-bounce mb-6">🌟</div>
-          <h1 className="text-white text-3xl font-bold">당신은 이제 STAR</h1>
+          <div className="text-yellow-400 text-9xl leading-none mb-4">
+            🌟🌟🌟<br/>🌟🌟🌟<br/>🌟🌟🌟
+          </div>
+          <h1 className="text-white text-4xl font-bold mt-2">당신은 이제 STAR</h1>
+          <p className="text-white text-lg mt-4">⭐ 진행률: {progressCount} / 20</p>
           <button
             onClick={handleComplete}
             className="mt-6 px-6 py-2 bg-white text-yellow-700 font-semibold rounded hover:bg-yellow-100"
