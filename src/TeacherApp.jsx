@@ -69,6 +69,34 @@ export default function TeacherApp() {
     }
   };
 
+  const toggleCell = async (colIdx, rowIdx) => {
+    if (!selectedStudent) return;
+
+    const cellKey = `${colIdx}-${rowIdx}`;
+    const updatedCellData = { ...selectedStudent.cell_data };
+
+    if (updatedCellData[cellKey]) {
+      delete updatedCellData[cellKey];
+    } else {
+      updatedCellData[cellKey] = true;
+    }
+
+    const { error } = await supabase
+      .from('user_progress')
+      .update({ cell_data: updatedCellData })
+      .eq('id', selectedStudent.id);
+
+    if (!error) {
+      setSelectedStudent({ ...selectedStudent, cell_data: updatedCellData });
+      const updatedStudents = students.map(s =>
+        s.id === selectedStudent.id ? { ...s, cell_data: updatedCellData } : s
+      );
+      setStudents(updatedStudents);
+    } else {
+      alert("수정 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-start py-12 px-4 bg-gradient-to-br from-purple-100 to-purple-300 font-['Noto_Sans_KR']">
       <h1 className="text-5xl font-extrabold text-purple-900 mb-8 drop-shadow-sm">📚 STAR MAKER 교사용</h1>
@@ -140,7 +168,11 @@ export default function TeacherApp() {
                           const cellValue = selectedStudent.cell_data?.[cellKey];
                           const displayLetter = { 0: 'S', 1: 'T', 2: 'A', 3: 'R' }[colIdx];
                           return (
-                            <td key={cellKey} className="border text-center p-2 text-lg font-bold">
+                            <td
+                              key={cellKey}
+                              onClick={() => toggleCell(colIdx, rowIdx)}
+                              className="border text-center p-2 text-lg font-bold cursor-pointer select-none hover:bg-indigo-100"
+                            >
                               {cellValue ? "★" : displayLetter}
                             </td>
                           );
