@@ -2,6 +2,8 @@ import './index.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import StudentApp from './StudentApp.jsx';
 import TeacherApp from './TeacherApp.jsx';
+import logo from './assets/logomoon.png';
+
 
 export default function App() {
   return (
