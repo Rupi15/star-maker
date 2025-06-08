@@ -138,7 +138,116 @@ export default function StudentApp() {
   const progressCount = Object.values(cellData).filter(Boolean).length;
 
   return (
-    // ... 기존 UI 렌더링은 그대로 유지 ...
-    <></>
+    <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-300 flex items-center justify-center font-['Noto_Sans_KR'] p-4">
+      <div className="flex flex-col items-center justify-center w-full max-w-6xl text-center">
+        <h1 className="text-5xl font-bold text-yellow-900 mb-10">⭐ Star Maker ⭐</h1>
+
+        {showNameInput && !showTable && (
+          <div>
+            <p className="mb-2 text-yellow-800">이름을 입력하세요</p>
+            <div className="flex justify-center mb-4">
+              <input
+                type="text"
+                value={inputName}
+                onChange={(e) => setInputName(e.target.value)}
+                className="p-3 border rounded-l w-64"
+              />
+              <button
+                onClick={handleNameSubmit}
+                className="px-6 py-3 bg-yellow-500 text-white rounded-r hover:bg-yellow-600"
+              >
+                이름 조회
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showPasswordPrompt && (
+          <div>
+            <p className="mb-2 text-yellow-800">
+              {isNewUser ? '비밀번호를 설정해주세요.' : '설정한 비밀번호를 입력하세요.'}
+            </p>
+            <div className="flex justify-center mb-4">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="p-3 border rounded"
+              />
+              <button
+                onClick={handlePasswordSubmit}
+                className="ml-2 px-6 py-3 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showTable && !showCongrats && (
+          <div className="w-full px-4">
+            {alreadyStar && (
+              <div className="text-2xl text-yellow-800 font-bold mb-2">당신은 이미 STAR</div>
+            )}
+            <h2 className="text-2xl font-semibold text-yellow-900 mb-4">{userName}님의 STAR 학습표</h2>
+            <p className="text-lg mb-4 text-yellow-800">⭐ 진행률: {progressCount} / 20</p>
+            <div className="overflow-x-auto max-w-5xl mx-auto">
+              <table className="border-collapse shadow-xl w-full">
+                <thead>
+                  <tr>
+                    <th className="bg-yellow-300 p-6 border text-xl">영역</th>
+                    {colTitles.map((title, idx) => (
+                      <th key={idx} className="bg-yellow-300 p-6 border text-xl">{title}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rowTitles.map((rowTitle, rowIdx) => (
+                    <tr key={rowIdx}>
+                      <td className="bg-yellow-200 border p-6 text-lg font-semibold whitespace-nowrap">{rowTitle}</td>
+                      {colTitles.map((_, colIdx) => {
+                        const key = `${colIdx}-${rowIdx}`;
+                        const display = cellData[key] ? "★" : cellWords[colIdx];
+                        return (
+                          <td
+                            key={key}
+                            className="border text-center p-6 text-2xl cursor-pointer hover:bg-yellow-100"
+                            onClick={() => handleToggleCell(colIdx, rowIdx)}
+                          >
+                            {display}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button
+              onClick={handleComplete}
+              className="mt-6 px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
+            >
+              완료
+            </button>
+          </div>
+        )}
+
+        {showCongrats && (
+          <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 text-center">
+            <div className="text-yellow-400 text-8xl leading-tight mb-4">
+              🌟<br/>🌟 🌟 🌟 🌟<br/> 🌟 🌟 🌟<br/>🌟     🌟
+            </div>
+            <h1 className="text-white text-4xl font-bold mt-2">당신은 이제 STAR</h1>
+            <p className="text-white text-lg mt-4">⭐ 진행률: {progressCount} / 20</p>
+            <button
+              onClick={handleComplete}
+              className="mt-6 px-6 py-2 bg-white text-yellow-700 font-semibold rounded hover:bg-yellow-100"
+            >
+              닫기
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
