@@ -225,7 +225,7 @@ export default function StudentApp() {
         {showCongrats && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
             <div className="text-yellow-400 text-[8rem] leading-none mb-4">
-              🌟🌟🌟<br/>🌟🌟🌟<br/>🌟🌟🌟
+                 🌟<br/>🌟 🌟 🌟 🌟<br/> 🌟 🌟 🌟<br/>🌟     🌟
             </div>
             <h1 className="text-white text-4xl font-bold mt-2">당신은 이제 STAR</h1>
             <p className="text-white text-lg mt-4">⭐ 진행률: {progressCount} / 20</p>
