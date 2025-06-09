@@ -139,7 +139,7 @@ export default function StudentApp() {
 
   return (
     <div className="min-h-screen flex items-center justify-center font-['Noto_Sans_KR'] p-4">
-      <div className="flex flex-col items-center justify-center w-full max-w-6xl text-center">
+      <div className="flex flex-col items-center justify-center w-full max-w-6xl text-center bg-white/70 p-6 rounded-lg">
         <h1 className="text-5xl font-bold text-yellow-900 mb-10">⭐ Star Maker ⭐</h1>
 
         {showNameInput && !showTable && (
@@ -187,7 +187,7 @@ export default function StudentApp() {
         {showTable && !showCongrats && (
           <div className="w-full px-4">
             {alreadyStar && (
-              <div className="text-2xl text-yellow-800 font-bold mb-2">당신은 이미 STAR</div>
+              <div className="text-2xl text-yellow-800 font-bold mb-2">⭐ 당신은 이미 STAR⭐</div>
             )}
             <h2 className="text-2xl font-semibold text-yellow-900 mb-4">{userName}님의 STAR 학습표</h2>
             <p className="text-lg mb-4 text-yellow-800">⭐ 진행률: {progressCount} / 20</p>
@@ -238,13 +238,13 @@ export default function StudentApp() {
         {showCongrats && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 text-center">
             <div
-              className="text-yellow-400 text-8xl leading-tight mb-4 font-mono"
+              className="text-yellow-500 text-9xl leading-tight mb-4 font-mono"
               style={{ whiteSpace: 'pre' }}
             >
-              {`      ☆
-☆ ☆ ☆ ☆
-  ☆ ☆ ☆
-☆         ☆`}
+              {`      ⭐
+⭐ ⭐ ⭐ ⭐
+  ⭐ ⭐ ⭐
+⭐         ⭐`}
             </div>
             <h1 className="text-white text-4xl font-bold mt-2">당신은 이제 STAR</h1>
             <p className="text-white text-lg mt-4">⭐ 진행률: {progressCount} / 20</p>

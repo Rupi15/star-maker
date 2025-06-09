@@ -99,10 +99,11 @@ export default function TeacherApp() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 font-['Noto_Sans_KR']">
-      <h1 className="text-5xl font-extrabold text-purple-900 mb-8 drop-shadow-sm">📚 STAR MAKER 교사용</h1>
+            <div className="bg-white/70 p-6 rounded-lg w-full max-w-5xl text-center">
+              <h1 className="text-5xl font-extrabold text-purple-900 mb-8 drop-shadow-sm">📚 STAR MAKER 교사용</h1>
 
-      {!authenticated ? (
-        <div className="flex flex-col items-center">
+       {!authenticated ? (
+         <div className="flex flex-col items-center">
           <input
             type="password"
             placeholder="비밀번호 입력"
@@ -208,6 +209,7 @@ export default function TeacherApp() {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }
