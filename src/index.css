@@ -3,7 +3,13 @@
 @tailwind utilities;
 
  body {
-background: url("../public/lighthouse.jpg") no-repeat center center fixed;
-background-size: cover; 
- }
+background: url("../public/star.jpg") no-repeat center center fixed;
+background-size: cover;
+  font-size: 3rem;
+}
+
+/* Increase STAR MAKER title size */
+.title {
+  font-size: 75px;
+}
 

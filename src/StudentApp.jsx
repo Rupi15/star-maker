@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import './App.css';
 
@@ -14,6 +14,21 @@ export default function StudentApp() {
   const [showCongrats, setShowCongrats] = useState(false);
   const [showNameInput, setShowNameInput] = useState(true);
   const [alreadyStar, setAlreadyStar] = useState(false);
+
+  useEffect(() => {
+    if (showCongrats) {
+      document.body.style.background = "url('../public/starlight.jpg') no-repeat center center fixed";
+      document.body.style.backgroundSize = 'cover';
+    } else {
+      document.body.style.background = "url('../public/star.jpg') no-repeat center center fixed";
+      document.body.style.backgroundSize = 'cover';
+    }
+
+    return () => {
+      document.body.style.background = "url('../public/star.jpg') no-repeat center center fixed";
+      document.body.style.backgroundSize = 'cover';
+    };
+  }, [showCongrats]);
 
   const rowTitles = [
     "통합적 관점",
@@ -140,7 +155,7 @@ export default function StudentApp() {
   return (
     <div className="min-h-screen flex items-center justify-center font-['Noto_Sans_KR'] p-4">
       <div className="flex flex-col items-center justify-center w-full max-w-6xl text-center bg-white/70 p-6 rounded-lg">
-        <h1 className="text-5xl font-bold text-yellow-900 mb-10">⭐ Star Maker ⭐</h1>
+        <h1 className="title font-bold text-yellow-900 mb-10">⭐ Star Maker ⭐</h1>
 
         {showNameInput && !showTable && (
           <div>
@@ -241,7 +256,7 @@ export default function StudentApp() {
               className="text-yellow-500 text-9xl leading-tight mb-4 font-mono"
               style={{ whiteSpace: 'pre' }}
             >
-              {`      ⭐
+              {`        ⭐
 ⭐ ⭐ ⭐ ⭐
   ⭐ ⭐ ⭐
 ⭐         ⭐`}
