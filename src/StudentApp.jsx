@@ -20,15 +20,15 @@ export default function StudentApp() {
   useEffect(() => {
     if (showCongrats) {
       document.body.style.background = 'url(${starlight}) no-repeat center center fixed';
-      document.body.style.backgroundSize = '80%';
+      document.body.style.backgroundSize = 'cover';
     } else {
       document.body.style.background = 'url(${star}) no-repeat center center fixed';
-      document.body.style.backgroundSize = '80%';
+      document.body.style.backgroundSize = 'cover';
     }
 
     return () => {
       document.body.style.background = 'url(${star}) no-repeat center center fixed';
-      document.body.style.backgroundSize = '80%';
+      document.body.style.backgroundSize = 'cover';
     };
   }, [showCongrats]);
 
@@ -168,7 +168,7 @@ export default function StudentApp() {
                 type="text"
                 value={inputName}
                 onChange={(e) => setInputName(e.target.value)}
-                className="p-3 border rounded-l w-64"
+                className="p-6 text-2xl border rounded-l w-64"
               />
               <button
                 onClick={handleNameSubmit}
@@ -190,7 +190,7 @@ export default function StudentApp() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="p-3 border rounded"
+                className="p-6 text-2xl border rounded"
               />
               <button
                 onClick={handlePasswordSubmit}

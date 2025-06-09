@@ -109,7 +109,7 @@ export default function TeacherApp() {
             placeholder="비밀번호 입력"
             value={passwordInput}
             onChange={(e) => setPasswordInput(e.target.value)}
-            className="border border-gray-300 p-3 rounded mb-4"
+            className="border border-gray-300 p-6 text-2xl rounded mb-4"
           />
           <button onClick={handleLogin} className="bg-purple-700 text-white px-6 py-2 rounded hover:bg-purple-800">
             로그인
@@ -198,7 +198,7 @@ export default function TeacherApp() {
                   placeholder="비밀번호 입력"
                   value={deleteConfirmPassword}
                   onChange={(e) => setDeleteConfirmPassword(e.target.value)}
-                  className="border border-gray-300 p-2 rounded w-full mb-4"
+                  className="border border-gray-300 p-6 text-2xl rounded w-full mb-4"
                 />
                 <div className="flex justify-center space-x-4">
                   <button onClick={() => setShowDeletePrompt(false)} className="bg-gray-300 px-4 py-2 rounded">취소</button>
