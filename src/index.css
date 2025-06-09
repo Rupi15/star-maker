@@ -3,22 +3,34 @@
 @tailwind utilities;
 
 body {
- background: url("./assets/star.jpg") no-repeat center center fixed;
- background-size: cover;
-  font-size: 1.5rem;
+  background: url("./assets/star.jpg") no-repeat center center fixed;
+  background-size: cover;
   color: white;
+  font-size: 1rem;        /* 기본(휴대폰) 글꼴 크기 */
 }
 
 button {
-  font-size: 1.5rem;
+  font-size: 1rem;        /* 기본(휴대폰) 글꼴 크기 */
 }
 
 input {
-  font-size: 1.5rem;
+  font-size: 1rem;        /* 기본(휴대폰) 글꼴 크기 */
 }
 
-/* Increase STAR MAKER title size */
+/* STAR MAKER title size */
 .title {
-  font-size: 4rem;
+  font-size: 3rem;
 }
 
+/* 데스크톱 화면(768px 이상)용 글꼴 크기 */
+@media screen and (min-width: 768px) {
+  body,
+  button,
+  input {
+    font-size: 1.5rem;
+  }
+
+  .title {
+    font-size: 4rem;
+  }
+}

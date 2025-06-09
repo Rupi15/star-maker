@@ -19,15 +19,15 @@ export default function StudentApp() {
 
   useEffect(() => {
     if (showCongrats) {
-      document.body.style.background = 'url(${starlight}) no-repeat center center fixed';
+      document.body.style.background = "url(${starlight}) no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     } else {
-      document.body.style.background = 'url(${star}) no-repeat center center fixed';
+      document.body.style.background = "url(${star}) no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     }
 
     return () => {
-      document.body.style.background = 'url(${star}) no-repeat center center fixed';
+      document.body.style.background = "url(${star}) no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     };
   }, [showCongrats]);
