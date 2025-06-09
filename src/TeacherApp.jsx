@@ -98,7 +98,7 @@ export default function TeacherApp() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-gradient-to-br from-purple-100 to-purple-300 font-['Noto_Sans_KR']">
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 font-['Noto_Sans_KR']">
       <h1 className="text-5xl font-extrabold text-purple-900 mb-8 drop-shadow-sm">📚 STAR MAKER 교사용</h1>
 
       {!authenticated ? (

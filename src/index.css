@@ -1,3 +1,4 @@
 body {
-  background-color: #e0e0ff;
+  background: url("C:\Users\user\star-maker\public/lighthouse.jpg") no-repeat center center fixed;
+  background-size: cover; 
 }
