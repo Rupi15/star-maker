@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
-import star from './assets/star.jpg';
-import starlight from './assets/starlight.jpg';
+import starstar from './assets/starstar.jpg';
 import './App.css';
 
 export default function StudentApp() {
@@ -18,19 +17,14 @@ export default function StudentApp() {
   const [alreadyStar, setAlreadyStar] = useState(false);
 
   useEffect(() => {
-    if (showCongrats) {
-      document.body.style.background = "url(${starlight}) no-repeat center center fixed";
-      document.body.style.backgroundSize = 'cover';
-    } else {
-      document.body.style.background = "url(${star}) no-repeat center center fixed";
-      document.body.style.backgroundSize = 'cover';
-    }
+    document.body.style.background = `url(${starstar}) no-repeat center center fixed`;
+    document.body.style.backgroundSize = 'cover';
 
     return () => {
-      document.body.style.background = "url(${star}) no-repeat center center fixed";
+      document.body.style.background = "url(./assets/starlight.jpg) no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     };
-  }, [showCongrats]);
+    }, []);
 
   const rowTitles = [
     "통합적 관점",
@@ -158,21 +152,21 @@ export default function StudentApp() {
   return (
     <div className="min-h-screen flex items-center justify-center font-['Noto_Sans_KR'] p-4">
       <div className="flex flex-col items-center justify-center w-full max-w-6xl text-center bg-white/70 p-6 rounded-lg">
-        <h1 className="title font-bold text-yellow-900 mb-10">⭐ Star Maker ⭐</h1>
+        <h1 className="title font-bold text-yellow-900 mb-10 text-center">⭐ Star Maker ⭐</h1>
 
         {showNameInput && !showTable && (
           <div>
-            <p className="mb-2 text-yellow-800">이름을 입력하세요</p>
+            <p className="mb-2 text-yellow-800 text-center">이름을 입력하세요</p>
             <div className="flex justify-center mb-4">
               <input
                 type="text"
                 value={inputName}
                 onChange={(e) => setInputName(e.target.value)}
-                className="p-6 text-2xl border rounded-l w-64"
+                className="p-6 text-2xl border rounded-l w-64 text-center"
               />
               <button
                 onClick={handleNameSubmit}
-                className="px-6 py-3 bg-yellow-500 text-white rounded-r hover:bg-yellow-600"
+                className="px-6 py-3 bg-yellow-500 text-white rounded-r hover:bg-yellow-600 text-center"
               >
                 이름 조회
               </button>
@@ -182,7 +176,7 @@ export default function StudentApp() {
 
         {showPasswordPrompt && (
           <div>
-            <p className="mb-2 text-yellow-800">
+            <p className="mb-2 text-yellow-800 text-center">
               {isNewUser ? '비밀번호를 설정해주세요.' : '설정한 비밀번호를 입력하세요.'}
             </p>
             <div className="flex justify-center mb-4">
@@ -190,11 +184,11 @@ export default function StudentApp() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="p-6 text-2xl border rounded"
+                className="p-6 text-2xl border rounded text-center"
               />
               <button
                 onClick={handlePasswordSubmit}
-                className="ml-2 px-6 py-3 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                className="ml-2 px-6 py-3 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-center"
               >
                 확인
               </button>
@@ -205,10 +199,10 @@ export default function StudentApp() {
         {showTable && !showCongrats && (
           <div className="w-full px-4">
             {alreadyStar && (
-              <div className="text-2xl text-yellow-800 font-bold mb-2">⭐ 당신은 이미 STAR⭐</div>
+              <div className="text-2xl text-yellow-800 font-bold mb-2 text-center">⭐ 당신은 이미 STAR⭐</div>
             )}
-            <h2 className="text-2xl font-semibold text-yellow-900 mb-4">{userName}님의 STAR 학습표</h2>
-            <p className="text-lg mb-4 text-yellow-800">⭐ 진행률: {progressCount} / 20</p>
+            <h2 className="text-2xl font-semibold text-yellow-900 mb-4 text-center">{userName}님의 STAR 학습표</h2>
+            <p className="text-lg mb-4 text-yellow-800 text-center">⭐ 진행률: {progressCount} / 20</p>
             <div className="overflow-x-auto max-w-5xl mx-auto">
                <table
                 className="border-separate shadow-xl w-full border border-black text-center"
@@ -246,7 +240,7 @@ export default function StudentApp() {
             </div>
             <button
               onClick={handleComplete}
-              className="mt-6 px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-900"
+              className="mt-6 px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-900 text-center"
             >
               완료
             </button>
@@ -264,8 +258,8 @@ export default function StudentApp() {
   ⭐ ⭐ ⭐
 ⭐         ⭐`}
             </div>
-            <h1 className="text-white text-4xl font-bold mt-2">당신은 이제 STAR</h1>
-            <p className="text-white text-lg mt-4">⭐ 진행률: {progressCount} / 20</p>
+            <h1 className="text-white text-4xl font-bold mt-2 text-center">당신은 이제 STAR</h1>
+            <p className="text-white text-lg mt-4 text-center">⭐ 진행률: {progressCount} / 20</p>
             <button
               onClick={handleComplete}
               className="mt-6 px-6 py-2 bg-white text-yellow-700 font-semibold rounded hover:bg-yellow-100"

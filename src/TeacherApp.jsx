@@ -100,7 +100,7 @@ export default function TeacherApp() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 font-['Noto_Sans_KR']">
             <div className="bg-white/70 p-6 rounded-lg w-full max-w-5xl text-center">
-              <h1 className="title font-extrabold text-purple-900 mb-8 drop-shadow-sm">📚 STAR MAKER 교사용</h1>
+              <h1 className="title font-extrabold text-purple-900 mb-8 drop-shadow-sm text-center">📚 STAR MAKER 교사용</h1>
 
        {!authenticated ? (
          <div className="flex flex-col items-center">
@@ -109,9 +109,9 @@ export default function TeacherApp() {
             placeholder="비밀번호 입력"
             value={passwordInput}
             onChange={(e) => setPasswordInput(e.target.value)}
-            className="border border-gray-300 p-6 text-2xl rounded mb-4"
+            className="border border-gray-300 p-6 text-2xl rounded mb-4 text-center"
           />
-          <button onClick={handleLogin} className="bg-purple-700 text-white px-6 py-2 rounded hover:bg-purple-800">
+          <button onClick={handleLogin} className="bg-purple-700 text-white px-6 py-2 rounded hover:bg-purple-800 text-center">
             로그인
           </button>
         </div>
@@ -119,7 +119,7 @@ export default function TeacherApp() {
         <>
           <div className="w-full max-w-4xl mb-8">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold text-purple-800">👩‍🏫 전체 학생 목록</h2>
+              <h2 className="text-2xl font-semibold text-purple-800 text-center">👩‍🏫 전체 학생 목록</h2>
               <div className="space-x-2">
                 <button onClick={handleResetAll} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
                   전체 리셋
@@ -137,7 +137,7 @@ export default function TeacherApp() {
                   onClick={() => handleStudentClick(student)}
                 >
                   <span className="font-medium text-purple-900">{student.user_name}</span>
-                  <span className="text-sm text-purple-600">
+                  <span className="text-sm text-purple-600 ">
                     진행률: {Object.values(student.cell_data || {}).filter(Boolean).length} / 20
                   </span>
                 </li>
@@ -183,7 +183,7 @@ export default function TeacherApp() {
                   </tbody>
                 </table>
               </div>
-              <p className="text-lg mt-4 text-indigo-800 font-semibold">
+              <p className="text-lg mt-4 text-indigo-800 font-semibold text-center">
                 ⭐ 진행률: {Object.values(selectedStudent.cell_data || {}).filter(Boolean).length} / 20
               </p>
             </div>
@@ -192,17 +192,17 @@ export default function TeacherApp() {
           {showDeletePrompt && (
             <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
               <div className="bg-white p-6 rounded shadow-xl text-center w-full max-w-md">
-                <h2 className="text-lg font-semibold mb-4">⚠ 저장된 모든 데이터를 삭제하려면 비밀번호를 입력하세요</h2>
+                <h2 className="text-lg font-semibold mb-4 text-center">⚠ 저장된 모든 데이터를 삭제하려면 비밀번호를 입력하세요</h2>
                 <input
                   type="password"
                   placeholder="비밀번호 입력"
                   value={deleteConfirmPassword}
                   onChange={(e) => setDeleteConfirmPassword(e.target.value)}
-                  className="border border-gray-300 p-6 text-2xl rounded w-full mb-4"
+                  className="border border-gray-300 p-6 text-2xl rounded w-full mb-4 text-center"
                 />
                 <div className="flex justify-center space-x-4">
-                  <button onClick={() => setShowDeletePrompt(false)} className="bg-gray-300 px-4 py-2 rounded">취소</button>
-                  <button onClick={handleDeleteAll} className="bg-red-600 text-white px-4 py-2 rounded">삭제</button>
+                  <button onClick={() => setShowDeletePrompt(false)} className="bg-gray-300 px-4 py-2 rounded text-center">취소</button>
+                  <button onClick={handleDeleteAll} className="bg-red-600 text-white px-4 py-2 rounded text-center">삭제</button>
                 </div>
               </div>
             </div>
