@@ -2,6 +2,22 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Supabase configuration
+
+The app requires credentials for your Supabase instance. Create a `.env.local` file in the project root and provide the following variables:
+
+```env
+SUPABASE_URL=your-supabase-url
+SUPABASE_KEY=your-supabase-key
+```
+
+Restart the development server after creating or updating this file.
+
+## Tailwind CSS
+
+Tailwind is integrated using PostCSS. The configuration files `tailwind.config.cjs` and `postcss.config.js` enable automatic compilation of the utility classes included in `src/index.css`. Run `npm start` during development and `npm run build` for production to generate the styles.
+
+
 ## Available Scripts
 
 In the project directory, you can run:
