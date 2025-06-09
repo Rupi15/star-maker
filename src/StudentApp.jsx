@@ -19,16 +19,16 @@ export default function StudentApp() {
 
   useEffect(() => {
     if (showCongrats) {
-      document.body.style.background = "url(${starlight}) no-repeat center center fixed";
-      document.body.style.backgroundSize = 'cover';
+      document.body.style.background = 'url(${starlight}) no-repeat center center fixed';
+      document.body.style.backgroundSize = '80%';
     } else {
-      document.body.style.background = "url(${star}) no-repeat center center fixed";
-      document.body.style.backgroundSize = 'cover';
+      document.body.style.background = 'url(${star}) no-repeat center center fixed';
+      document.body.style.backgroundSize = '80%';
     }
 
     return () => {
-      document.body.style.background = "url(${star}) no-repeat center center fixed";
-      document.body.style.backgroundSize = 'cover';
+      document.body.style.background = 'url(${star}) no-repeat center center fixed';
+      document.body.style.backgroundSize = '80%';
     };
   }, [showCongrats]);
 
@@ -99,6 +99,7 @@ export default function StudentApp() {
         setShowPasswordPrompt(false);
         if (Object.values(user.cell_data || {}).filter(Boolean).length === 20) {
           setAlreadyStar(true);
+          setShowCongrats(true);
         }
       } else {
         alert('비밀번호가 틀렸습니다.');

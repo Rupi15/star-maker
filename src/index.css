@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 body {
-background: url("./assets/star.jpg") no-repeat center center fixed;
-background-size: cover;
+ background: url("./assets/star.jpg") no-repeat center center fixed;
+ background-size: 80%;
   font-size: 1.5rem;
   color: white;
 }
