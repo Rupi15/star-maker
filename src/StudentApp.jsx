@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
+import star from './assets/star.jpg';
+import starlight from './assets/starlight.jpg';
 import './App.css';
 
 export default function StudentApp() {
@@ -17,15 +19,15 @@ export default function StudentApp() {
 
   useEffect(() => {
     if (showCongrats) {
-      document.body.style.background = "url('/starlight.jpg') no-repeat center center fixed";
+      document.body.style.background = "url(${starlight}) no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     } else {
-      document.body.style.background = "url('/star.jpg') no-repeat center center fixed";
+      document.body.style.background = "url(${star}) no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     }
 
     return () => {
-      document.body.style.background = "url('/star.jpg') no-repeat center center fixed";
+      document.body.style.background = "url(${star}) no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     };
   }, [showCongrats]);
