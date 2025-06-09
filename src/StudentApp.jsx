@@ -237,12 +237,15 @@ export default function StudentApp() {
 
         {showCongrats && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 text-center">
-             <pre className="text-yellow-400 text-8xl leading-tight mb-4">
-      🌟
-🌟 🌟 🌟 🌟
-  🌟 🌟 🌟
-🌟         🌟
-            </pre>
+            <div
+              className="text-yellow-400 text-8xl leading-tight mb-4 font-mono"
+              style={{ whiteSpace: 'pre' }}
+            >
+              {`      ☆
+☆ ☆ ☆ ☆
+  ☆ ☆ ☆
+☆         ☆`}
+            </div>
             <h1 className="text-white text-4xl font-bold mt-2">당신은 이제 STAR</h1>
             <p className="text-white text-lg mt-4">⭐ 진행률: {progressCount} / 20</p>
             <button
