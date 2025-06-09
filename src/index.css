@@ -2,9 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
- body {
-background: url("../public/star.jpg") no-repeat center center fixed;
+body {
+background: url("/star.jpg") no-repeat center center fixed;
 background-size: cover;
+  font-size: 1.5rem;
+  color: white;
+}
+
+button {
   font-size: 1.5rem;
 }
 

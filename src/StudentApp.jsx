@@ -17,15 +17,15 @@ export default function StudentApp() {
 
   useEffect(() => {
     if (showCongrats) {
-      document.body.style.background = "url('../public/starlight.jpg') no-repeat center center fixed";
+      document.body.style.background = "url('/starlight.jpg') no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     } else {
-      document.body.style.background = "url('../public/star.jpg') no-repeat center center fixed";
+      document.body.style.background = "url('/star.jpg') no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     }
 
     return () => {
-      document.body.style.background = "url('../public/star.jpg') no-repeat center center fixed";
+      document.body.style.background = "url('/star.jpg') no-repeat center center fixed";
       document.body.style.backgroundSize = 'cover';
     };
   }, [showCongrats]);
