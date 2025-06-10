@@ -24,7 +24,11 @@ input {
 
 /* 데스크톱 화면(768px 이상)용 글꼴 크기 */
 @media screen and (min-width: 768px) {
-  body,
+  body {
+    font-size: 1.5rem;
+    background-size: contain;
+  }
+
   button,
   input {
     font-size: 1.5rem;

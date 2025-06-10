@@ -17,14 +17,20 @@ export default function StudentApp() {
   const [alreadyStar, setAlreadyStar] = useState(false);
 
   useEffect(() => {
+    const applyBackgroundSize = () => {
+      document.body.style.backgroundSize = window.innerWidth >= 768 ? 'contain' : 'cover';
+    };
+
     document.body.style.background = `url(${starstar}) no-repeat center center fixed`;
-    document.body.style.backgroundSize = 'cover';
+    applyBackgroundSize();
+    window.addEventListener('resize', applyBackgroundSize);
 
     return () => {
+      window.removeEventListener('resize', applyBackgroundSize);
       document.body.style.background = "url(./assets/starlight.jpg) no-repeat center center fixed";
-      document.body.style.backgroundSize = 'cover';
+      applyBackgroundSize();
     };
-    }, []);
+  }, []);
 
   const rowTitles = [
     "통합적 관점",
@@ -91,9 +97,12 @@ export default function StudentApp() {
         setCellData(user.cell_data || {});
         setShowTable(true);
         setShowPasswordPrompt(false);
-        if (Object.values(user.cell_data || {}).filter(Boolean).length === 20) {
+        const progress = Object.values(user.cell_data || {}).filter(Boolean).length;
+        if (progress === 20) {
           setAlreadyStar(true);
-          setShowCongrats(true);
+          setShowCongrats(false);
+        } else {
+          setAlreadyStar(false);
         }
       } else {
         alert('비밀번호가 틀렸습니다.');
@@ -253,10 +262,10 @@ export default function StudentApp() {
               className="text-yellow-500 text-9xl leading-tight mb-4 font-mono"
               style={{ whiteSpace: 'pre' }}
             >
-              {`        ⭐
+              {`         ⭐
 ⭐ ⭐ ⭐ ⭐
   ⭐ ⭐ ⭐
-⭐         ⭐`}
+⭐          ⭐`}
             </div>
             <h1 className="text-white text-4xl font-bold mt-2 text-center">당신은 이제 STAR</h1>
             <p className="text-white text-lg mt-4 text-center">⭐ 진행률: {progressCount} / 20</p>
