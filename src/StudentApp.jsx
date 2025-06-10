@@ -208,9 +208,11 @@ export default function StudentApp() {
         {showTable && !showCongrats && (
           <div className="w-full px-4">
             {alreadyStar && (
-              <div className="text-2xl text-yellow-800 font-bold mb-2 text-center">⭐ 당신은 이미 STAR⭐</div>
+              <div className="text-2xl text-yellow-800 font-bold mb-2 text-center ">⭐ 당신은 이미 STAR⭐</div>
             )}
-            <h2 className="text-2xl font-semibold text-yellow-900 mb-4 text-center">{userName}님의 STAR 학습표</h2>
+            <h2 className="text-2xl font-semibold text-yellow-900 mb-4 text-center">
+              <span className="text-yellow-500">{userName}님</span>의 STAR 학습표
+            </h2>
             <p className="text-lg mb-4 text-yellow-800 text-center">⭐ 진행률: {progressCount} / 20</p>
             <div className="overflow-x-auto max-w-5xl mx-auto">
                <table
@@ -259,7 +261,8 @@ export default function StudentApp() {
         {showCongrats && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50 text-center">
             <div
-              className="text-yellow-500 text-9xl leading-tight mb-4 font-mono whitespace-pre"
+              className="text-yellow-500 text-9xl leading-tight mb-4 font-mono text-center"
+              style={{ whiteSpace: 'pre' }}
             >
               {`        ⭐
  ⭐ ⭐ ⭐ ⭐
