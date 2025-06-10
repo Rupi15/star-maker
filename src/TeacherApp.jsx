@@ -118,9 +118,9 @@ export default function TeacherApp() {
       ) : (
         <>
           <div className="w-full max-w-4xl mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold text-purple-800 text-center">👩‍🏫 전체 학생 목록</h2>
-              <div className="space-x-2">
+            <div className="flex flex-col items-center mb-4">
+              <h2 className="text-2xl font-semibold text-purple-800 w-full">👩‍🏫 전체 학생 목록</h2>
+              <div className="space-x-2 mt-2">
                 <button onClick={handleResetAll} className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
                   전체 리셋
                 </button>
