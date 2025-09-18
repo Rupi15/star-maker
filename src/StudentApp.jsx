@@ -15,6 +15,9 @@ export default function StudentApp() {
   const [showCongrats, setShowCongrats] = useState(false);
   const [showNameInput, setShowNameInput] = useState(true);
   const [alreadyStar, setAlreadyStar] = useState(false);
+  const [question, setQuestion] = useState('');
+  const [savedQuestion, setSavedQuestion] = useState('');
+  const [teacherFeedback, setTeacherFeedback] = useState('');
 
   useEffect(() => {
     const applyBackgroundSize = () => {
@@ -53,7 +56,11 @@ export default function StudentApp() {
   };
 
   const fetchUser = async (name) => {
-    const { data, error } = await supabase.from('user_progress').select('*').eq('user_name', name).maybeSingle();
+     const { data, error } = await supabase
+      .from('user_progress')
+      .select('id, user_name, password, cell_data, question, feedback')
+      .eq('user_name', name)
+      .maybeSingle();
     if (error) {
       console.error('Error fetching user:', error);
     }
@@ -77,7 +84,7 @@ export default function StudentApp() {
   const handlePasswordSubmit = async () => {
     if (isNewUser) {
       const { data, error } = await supabase.from('user_progress')
-        .insert({ user_name: inputName, password, cell_data: {} })
+        .insert({ user_name: inputName, password, cell_data: {}, question: '', feedback: '' })
         .select()
         .single();
       if (error) {
@@ -87,6 +94,9 @@ export default function StudentApp() {
       setUserName(data.user_name);
       setUserId(data.id);
       setCellData(data.cell_data || {});
+      setQuestion('');
+      setSavedQuestion(data.question || '');
+      setTeacherFeedback(data.feedback || '');
       setShowTable(true);
       setShowPasswordPrompt(false);
     } else {
@@ -95,6 +105,9 @@ export default function StudentApp() {
         setUserName(user.user_name);
         setUserId(user.id);
         setCellData(user.cell_data || {});
+        setQuestion('');
+        setSavedQuestion(user.question || '');
+        setTeacherFeedback(user.feedback || '');
         setShowTable(true);
         setShowPasswordPrompt(false);
         const progress = Object.values(user.cell_data || {}).filter(Boolean).length;
@@ -154,9 +167,43 @@ export default function StudentApp() {
     setAlreadyStar(false);
     setInputName('');
     setPassword('');
+    setQuestion('');
+    setSavedQuestion('');
+    setTeacherFeedback('');
   };
 
   const progressCount = Object.values(cellData).filter(Boolean).length;
+
+   const handleQuestionSubmit = async () => {
+    if (!userId) {
+      alert('로그인 후 질문을 제출할 수 있습니다.');
+      return;
+    }
+
+    const trimmedQuestion = question.trim();
+    if (!trimmedQuestion) {
+      alert('질문을 입력해주세요.');
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('user_progress')
+      .update({ question: trimmedQuestion })
+      .eq('id', userId)
+      .select('question, feedback')
+      .single();
+
+    if (error) {
+      console.error('Error submitting question:', error);
+      alert('질문을 저장하는 중 오류가 발생했습니다.');
+      return;
+    }
+
+    setSavedQuestion(data?.question || '');
+    setTeacherFeedback(data?.feedback || '');
+    setQuestion('');
+    alert('질문이 제출되었습니다.');
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center font-['Noto_Sans_KR'] p-4">
@@ -215,7 +262,7 @@ export default function StudentApp() {
             </h2>
             <p className="text-lg mb-4 text-yellow-800 text-center">⭐ 진행률: {progressCount} / 20</p>
             <div className="overflow-x-auto max-w-5xl mx-auto">
-               <table
+              <table
                 className="border-separate shadow-xl w-full border border-black text-center"
                 style={{ borderSpacing: '3mm' }}
               >
@@ -248,6 +295,34 @@ export default function StudentApp() {
                   ))}
                 </tbody>
               </table>
+            </div>
+             <div className="mt-8 text-left bg-yellow-50 border border-yellow-200 rounded-lg p-5">
+              <h3 className="text-xl font-semibold text-yellow-900 mb-4">질문하기</h3>
+              <textarea
+                className="w-full border border-yellow-300 rounded-md p-3 text-left focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                rows={4}
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="수업과 관련된 궁금한 점을 입력하세요."
+              />
+              <button
+                onClick={handleQuestionSubmit}
+                className="mt-3 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+              >
+                질문 제출
+              </button>
+              <div className="mt-6">
+                <p className="font-semibold text-yellow-900">제출한 질문</p>
+                <p className="text-yellow-800 whitespace-pre-line">
+                  {savedQuestion ? savedQuestion : '아직 제출한 질문이 없습니다.'}
+                </p>
+              </div>
+              <div className="mt-4">
+                <p className="font-semibold text-yellow-900">교사 피드백</p>
+                <p className="text-yellow-800 whitespace-pre-line">
+                  {teacherFeedback ? teacherFeedback : '아직 등록된 피드백이 없습니다.'}
+                </p>
+              </div>
             </div>
             <button
               onClick={handleComplete}

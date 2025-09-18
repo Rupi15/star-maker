@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import './App.css';
 
@@ -9,6 +9,10 @@ export default function TeacherApp() {
   const [authenticated, setAuthenticated] = useState(false);
   const [deleteConfirmPassword, setDeleteConfirmPassword] = useState('');
   const [showDeletePrompt, setShowDeletePrompt] = useState(false);
+  const [feedbackInput, setFeedbackInput] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState(null);
+  const [isSavingFeedback, setIsSavingFeedback] = useState(false);
+
 
   const rowTitles = [
     "통합적 관점",
@@ -22,12 +26,70 @@ export default function TeacherApp() {
   const fetchStudents = async () => {
     const { data, error } = await supabase
       .from('user_progress')
-      .select('id, user_name, cell_data');
-    if (data) setStudents(data);
+       .select('id, user_name, cell_data, student_question, teacher_feedback');
+
+    if (error) {
+      console.error('Error fetching students:', error);
+      return;
+    }
+
+    if (data) {
+      setStudents(data);
+      if (selectedStudent) {
+        const updatedSelected = data.find((student) => student.id === selectedStudent.id);
+        setSelectedStudent(updatedSelected || null);
+      }
+    }
   };
+
+  useEffect(() => {
+    if (selectedStudent) {
+      setFeedbackInput(selectedStudent.teacher_feedback ?? '');
+    } else {
+      setFeedbackInput('');
+    }
+    setFeedbackStatus(null);
+  }, [selectedStudent]);
 
   const handleStudentClick = (student) => {
     setSelectedStudent(student);
+  };
+
+  const handleSaveFeedback = async () => {
+    if (!selectedStudent) return;
+
+    const targetId = selectedStudent.id;
+    setIsSavingFeedback(true);
+    setFeedbackStatus(null);
+
+    const { data, error } = await supabase
+      .from('user_progress')
+      .update({ teacher_feedback: feedbackInput })
+      .eq('id', targetId)
+      .select('teacher_feedback')
+      .single();
+
+    if (error) {
+      console.error('Error saving teacher feedback:', error);
+      setFeedbackStatus({ type: 'error', message: '피드백 저장 중 오류가 발생했습니다.' });
+      setIsSavingFeedback(false);
+      return;
+    }
+
+    const updatedFeedback = data?.teacher_feedback ?? feedbackInput;
+
+    setStudents((prevStudents) =>
+      prevStudents.map((student) =>
+        student.id === targetId ? { ...student, teacher_feedback: updatedFeedback } : student
+      )
+    );
+
+    setSelectedStudent((prev) =>
+      prev && prev.id === targetId ? { ...prev, teacher_feedback: updatedFeedback } : prev
+    );
+
+    setFeedbackStatus({ type: 'success', message: '피드백이 저장되었습니다.' });
+    setIsSavingFeedback(false);
   };
 
   const handleResetAll = async () => {
@@ -97,6 +159,9 @@ export default function TeacherApp() {
     }
   };
 
+  const feedbackHasChanged =
+    selectedStudent && feedbackInput !== (selectedStudent.teacher_feedback ?? '');
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 font-['Noto_Sans_KR']">
             <div className="bg-white/70 p-6 rounded-lg w-full max-w-5xl text-center">
@@ -150,6 +215,54 @@ export default function TeacherApp() {
               <h3 className="text-xl font-semibold text-indigo-700 mb-4">
                 ⭐ {selectedStudent.user_name} 학생의 STAR 학습 현황
               </h3>
+              <div className="bg-white/80 border border-indigo-200 rounded-lg p-4 mb-6 text-left shadow-sm">
+                <h4 className="text-lg font-semibold text-indigo-700 mb-2">학생 질문</h4>
+                {selectedStudent.student_question ? (
+                  <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                    {selectedStudent.student_question}
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">
+                    학생이 아직 질문을 남기지 않았습니다.
+                  </p>
+                )}
+              </div>
+              <div className="bg-white/80 border border-indigo-200 rounded-lg p-4 mb-6 text-left shadow-sm">
+                <h4 className="text-lg font-semibold text-indigo-700 mb-2">교사 피드백</h4>
+                <textarea
+                  value={feedbackInput}
+                  onChange={(e) => {
+                    if (feedbackStatus) {
+                      setFeedbackStatus(null);
+                    }
+                    setFeedbackInput(e.target.value);
+                  }}
+                  placeholder="학생에게 전하고 싶은 피드백을 입력해주세요."
+                  className="w-full border border-indigo-200 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[120px] resize-y"
+                />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 gap-2">
+                  {feedbackStatus && (
+                    <span
+                      className={`text-sm ${
+                        feedbackStatus.type === 'success' ? 'text-green-600' : 'text-red-600'
+                      }`}
+                    >
+                      {feedbackStatus.message}
+                    </span>
+                  )}
+                  <button
+                    onClick={handleSaveFeedback}
+                    disabled={isSavingFeedback || !feedbackHasChanged}
+                    className={`self-end px-4 py-2 rounded text-white transition ${
+                      isSavingFeedback || !feedbackHasChanged
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-indigo-600 hover:bg-indigo-700'
+                    }`}
+                  >
+                    {isSavingFeedback ? '저장 중...' : '피드백 저장'}
+                  </button>
+                </div>
+              </div>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse shadow-lg">
                   <thead>
