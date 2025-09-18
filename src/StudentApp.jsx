@@ -56,9 +56,9 @@ export default function StudentApp() {
   };
 
   const fetchUser = async (name) => {
-     const { data, error } = await supabase
+    const { data, error } = await supabase
       .from('user_progress')
-      .select('id, user_name, password, cell_data, question, feedback')
+      .select('id, user_name, password, cell_data, student_question, teacher_feedback')
       .eq('user_name', name)
       .maybeSingle();
     if (error) {
@@ -84,7 +84,7 @@ export default function StudentApp() {
   const handlePasswordSubmit = async () => {
     if (isNewUser) {
       const { data, error } = await supabase.from('user_progress')
-        .insert({ user_name: inputName, password, cell_data: {}, question: '', feedback: '' })
+        .insert({ user_name: inputName, password, cell_data: {}, student_question: '', teacher_feedback: '' })
         .select()
         .single();
       if (error) {
@@ -95,8 +95,8 @@ export default function StudentApp() {
       setUserId(data.id);
       setCellData(data.cell_data || {});
       setQuestion('');
-      setSavedQuestion(data.question || '');
-      setTeacherFeedback(data.feedback || '');
+      setSavedQuestion(data.student_question || '');
+      setTeacherFeedback(data.teacher_feedback || '');
       setShowTable(true);
       setShowPasswordPrompt(false);
     } else {
@@ -188,9 +188,9 @@ export default function StudentApp() {
 
     const { data, error } = await supabase
       .from('user_progress')
-      .update({ question: trimmedQuestion })
+      .update({ student_question: trimmedQuestion })
       .eq('id', userId)
-      .select('question, feedback')
+      .select('student_question, teacher_feedback')
       .single();
 
     if (error) {
@@ -199,8 +199,8 @@ export default function StudentApp() {
       return;
     }
 
-    setSavedQuestion(data?.question || '');
-    setTeacherFeedback(data?.feedback || '');
+    setSavedQuestion(data?.student_question || '');
+    setTeacherFeedback(data?.teacher_feedback || '');
     setQuestion('');
     alert('질문이 제출되었습니다.');
   };
