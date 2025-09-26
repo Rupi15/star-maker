@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from './supabaseClient';
 import './App.css';
 import { createHistoryEntry, parseHistoryData, formatHistoryTimestamp } from './utils/historyUtils';
@@ -13,6 +13,8 @@ export default function TeacherApp() {
   const [newFeedback, setNewFeedback] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState(null);
   const [isSavingFeedback, setIsSavingFeedback] = useState(false);
+  const [starTableWidth, setStarTableWidth] = useState(null);
+  const starTableContainerRef = useRef(null);
 
 
   const rowTitles = [
@@ -52,6 +54,44 @@ export default function TeacherApp() {
   useEffect(() => {
     setNewFeedback('');
     setFeedbackStatus(null);
+  }, [selectedStudent]);
+
+   useEffect(() => {
+    if (!selectedStudent) {
+      setStarTableWidth(null);
+      return;
+    }
+
+    const updateWidth = () => {
+      if (starTableContainerRef.current) {
+        setStarTableWidth(starTableContainerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => {
+            updateWidth();
+          })
+        : null;
+
+    if (resizeObserver && starTableContainerRef.current) {
+      resizeObserver.observe(starTableContainerRef.current);
+    }
+
+    window.addEventListener('resize', updateWidth);
+
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+      if (resizeObserver && starTableContainerRef.current) {
+        resizeObserver.unobserve(starTableContainerRef.current);
+      }
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    };
   }, [selectedStudent]);
 
   const handleStudentClick = (student) => {
@@ -241,75 +281,87 @@ export default function TeacherApp() {
               <h3 className="text-xl font-semibold text-indigo-700 mb-4">
                 ⭐ {selectedStudent.user_name} 학생의 STAR 학습 현황
               </h3>
-              <div className="bg-white/80 border border-indigo-200 rounded-lg p-4 mb-6 text-left shadow-sm">
-                <h4 className="text-lg font-semibold text-indigo-700 mb-2">학생 질문</h4>
-                 {selectedStudent.student_question_history?.length ? (
-                  <ul className="space-y-3">
-                    {selectedStudent.student_question_history.map((entry, index) => (
-                      <li
-                        key={`${entry.createdAt ?? 'question'}-${index}`}
-                        className="bg-white border border-indigo-100 rounded-md p-3"
-                      >
-                        <p className="text-xs text-indigo-500 mb-1">
-                          {entry.createdAt
-                            ? formatHistoryTimestamp(entry.createdAt)
-                            : `기록 ${index + 1}`}
-                        </p>
-                        <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                          {entry.message}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-gray-500 italic">
-                    학생이 아직 질문을 남기지 않았습니다.
-                  </p>
-                )}
-              </div>
-              <div className="bg-white/80 border border-indigo-200 rounded-lg p-4 mb-6 text-left shadow-sm">
-                <h4 className="text-lg font-semibold text-indigo-700 mb-2">교사 피드백</h4>
-                 {selectedStudent.teacher_feedback_history?.length ? (
-                  <ul className="space-y-3">
-                    {selectedStudent.teacher_feedback_history.map((entry, index) => (
-                      <li
-                        key={`${entry.createdAt ?? 'feedback'}-${index}`}
-                        className="bg-white border border-indigo-100 rounded-md p-3"
-                      >
-                        <p className="text-xs text-indigo-500 mb-1">
-                          {entry.createdAt
-                            ? formatHistoryTimestamp(entry.createdAt)
-                            : `기록 ${index + 1}`}
-                        </p>
-                        <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                          {entry.message}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-sm text-gray-500 italic">
-                    아직 등록된 피드백이 없습니다.
-                  </p>
-                )}
-                <div className="mt-4">
-                  <label htmlFor="teacher-feedback-input" className="block text-sm font-medium text-indigo-700 mb-1">
-                    새로운 피드백 작성
-                  </label>
-                  <textarea
-                    id="teacher-feedback-input"
-                    value={newFeedback}
-                    onChange={(e) => {
-                      if (feedbackStatus) {
-                        setFeedbackStatus(null);
-                      }
-                      setNewFeedback(e.target.value);
-                    }}
-                    placeholder="학생에게 전하고 싶은 피드백을 입력해주세요."
-                    className="w-full border border-indigo-200 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[120px] resize-y"
-                  />
+               <div
+                className="w-full max-w-5xl bg-white/80 border border-indigo-200 rounded-lg mb-6 text-left shadow-sm"
+                style={{ width: starTableWidth ? `${starTableWidth}px` : undefined }}
+              >
+                <div className="px-5 py-5">
+                  <h4 className="text-lg font-semibold text-indigo-700 mb-2">학생 질문</h4>
+                  {selectedStudent.student_question_history?.length ? (
+                    <ul className="space-y-3">
+                      {selectedStudent.student_question_history.map((entry, index) => (
+                        <li
+                          key={`${entry.createdAt ?? 'question'}-${index}`}
+                          className="bg-white border border-indigo-100 rounded-md p-3"
+                        >
+                          <p className="text-xs text-indigo-500 mb-1">
+                            {entry.createdAt
+                              ? formatHistoryTimestamp(entry.createdAt)
+                              : `기록 ${index + 1}`}
+                          </p>
+                          <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                            {entry.message}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">
+                      학생이 아직 질문을 남기지 않았습니다.
+                    </p>
+                  )}
                 </div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 gap-2">
+              </div>
+               <div
+                className="w-full max-w-5xl bg-white/80 border border-indigo-200 rounded-lg mb-6 text-left shadow-sm"
+                style={{ width: starTableWidth ? `${starTableWidth}px` : undefined }}
+              >
+                <div className="px-5 pt-5">
+                  <h4 className="text-lg font-semibold text-indigo-700 mb-2">교사 피드백</h4>
+                  {selectedStudent.teacher_feedback_history?.length ? (
+                    <ul className="space-y-3">
+                      {selectedStudent.teacher_feedback_history.map((entry, index) => (
+                        <li
+                          key={`${entry.createdAt ?? 'feedback'}-${index}`}
+                          className="bg-white border border-indigo-100 rounded-md p-3"
+                        >
+                          <p className="text-xs text-indigo-500 mb-1">
+                            {entry.createdAt
+                              ? formatHistoryTimestamp(entry.createdAt)
+                              : `기록 ${index + 1}`}
+                          </p>
+                          <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                            {entry.message}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">
+                      아직 등록된 피드백이 없습니다.
+                    </p>
+                  )}
+                </div>
+                 <label
+                  htmlFor="teacher-feedback-input"
+                  className="block px-5 mt-4 text-base font-medium text-indigo-700"
+                >
+                  새로운 피드백 작성
+                </label>
+                <textarea
+                  id="teacher-feedback-input"
+                  value={newFeedback}
+                  onChange={(e) => {
+                    if (feedbackStatus) {
+                      setFeedbackStatus(null);
+                    }
+                    setNewFeedback(e.target.value);
+                  }}
+                  placeholder="학생에게 전하고 싶은 피드백을 입력해주세요."
+                  className="mt-2 border border-indigo-200 rounded-md p-3 text-left text-xl leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[140px] resize-none w-full"
+                  style={{ fontSize: '1.25rem' }}
+                />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-5 pb-5 mt-3">
                   {feedbackStatus && (
                     <span
                       className={`text-sm ${
@@ -332,7 +384,7 @@ export default function TeacherApp() {
                   </button>
                 </div>
               </div>
-              <div className="overflow-x-auto">
+               <div ref={starTableContainerRef} className="overflow-x-auto">
                 <table className="w-full border-collapse shadow-lg">
                   <thead>
                     <tr>

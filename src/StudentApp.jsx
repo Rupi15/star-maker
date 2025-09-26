@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from './supabaseClient';
 import starstar from './assets/starstar.jpg';
 import './App.css';
@@ -19,6 +19,8 @@ export default function StudentApp() {
   const [question, setQuestion] = useState('');
   const [questionHistory, setQuestionHistory] = useState([]);
   const [feedbackHistory, setFeedbackHistory] = useState([]);
+  const [tableWidth, setTableWidth] = useState(null);
+  const tableContainerRef = useRef(null);
 
   useEffect(() => {
     const applyBackgroundSize = () => {
@@ -35,6 +37,44 @@ export default function StudentApp() {
       applyBackgroundSize();
     };
   }, []);
+
+  useEffect(() => {
+    if (!showTable) {
+      setTableWidth(null);
+      return;
+    }
+
+    const updateWidth = () => {
+      if (tableContainerRef.current) {
+        setTableWidth(tableContainerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => {
+            updateWidth();
+          })
+        : null;
+
+    if (resizeObserver && tableContainerRef.current) {
+      resizeObserver.observe(tableContainerRef.current);
+    }
+
+    window.addEventListener('resize', updateWidth);
+
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+      if (resizeObserver && tableContainerRef.current) {
+        resizeObserver.unobserve(tableContainerRef.current);
+      }
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+    };
+  }, [showTable]);
 
   const rowTitles = [
     "통합적 관점",
@@ -283,7 +323,7 @@ export default function StudentApp() {
               <span className="text-yellow-500">{userName}님</span>의 STAR 학습표
             </h2>
             <p className="text-lg mb-4 text-yellow-800 text-center">⭐ 진행률: {progressCount} / 20</p>
-            <div className="overflow-x-auto max-w-5xl mx-auto">
+            <div ref={tableContainerRef} className="overflow-x-auto max-w-5xl mx-auto">
               <table
                 className="border-separate shadow-xl w-full border border-black text-center"
                 style={{ borderSpacing: '3mm' }}
@@ -318,22 +358,28 @@ export default function StudentApp() {
                 </tbody>
               </table>
             </div>
-             <div className="mt-8 text-left bg-yellow-50 border border-yellow-200 rounded-lg p-5">
-              <h3 className="text-xl font-semibold text-yellow-900 mb-4">질문하기</h3>
+            <div
+              className="mt-8 w-full max-w-5xl mx-auto text-left bg-yellow-50 border border-yellow-200 rounded-lg"
+              style={{ width: tableWidth ? `${tableWidth}px` : undefined }}
+            >
+              <h3 className="px-5 pt-5 text-xl font-semibold text-yellow-900">질문하기</h3>
               <textarea
-                className="w-full border border-yellow-300 rounded-md p-3 text-left focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                 className="mt-3 border border-yellow-300 rounded-md p-3 text-left focus:outline-none focus:ring-2 focus:ring-yellow-400 min-h-[140px] resize-none text-xl leading-relaxed w-full"
+                style={{ fontSize: '1.25rem' }}
                 rows={4}
                 value={question}
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="수업과 관련된 궁금한 점을 입력하세요."
               />
-              <button
-                onClick={handleQuestionSubmit}
-                className="mt-3 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-              >
-                질문 제출
-              </button>
-              <div className="mt-6 text-left">
+               <div className="px-5">
+                <button
+                  onClick={handleQuestionSubmit}
+                  className="mt-3 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                >
+                  질문 제출
+                </button>
+              </div>
+              <div className="mt-6 px-5 text-left pb-5">
                 <p className="font-semibold text-yellow-900">제출한 질문</p>
                 {questionHistory.length > 0 ? (
                   <ul className="mt-2 space-y-3">
@@ -354,28 +400,28 @@ export default function StudentApp() {
                 ) : (
                   <p className="text-yellow-800">아직 제출한 질문이 없습니다.</p>
                 )}
-              </div>
-               <div className="mt-4 text-left">
-                <p className="font-semibold text-yellow-900">교사 피드백</p>
-                 {feedbackHistory.length > 0 ? (
-                  <ul className="mt-2 space-y-3">
-                    {feedbackHistory.map((entry, index) => (
-                      <li
-                        key={`${entry.createdAt ?? 'feedback'}-${index}`}
-                        className="bg-white/70 border border-yellow-200 rounded-md p-3"
-                      >
-                        <p className="text-xs text-yellow-600 mb-1">
-                          {entry.createdAt
-                            ? formatHistoryTimestamp(entry.createdAt)
-                            : `기록 ${index + 1}`}
-                        </p>
-                        <p className="text-yellow-800 whitespace-pre-line">{entry.message}</p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-yellow-800">아직 등록된 피드백이 없습니다.</p>
-                )}
+                 <div className="mt-4">
+                  <p className="font-semibold text-yellow-900">교사 피드백</p>
+                  {feedbackHistory.length > 0 ? (
+                    <ul className="mt-2 space-y-3">
+                      {feedbackHistory.map((entry, index) => (
+                        <li
+                          key={`${entry.createdAt ?? 'feedback'}-${index}`}
+                          className="bg-white/70 border border-yellow-200 rounded-md p-3"
+                        >
+                          <p className="text-xs text-yellow-600 mb-1">
+                            {entry.createdAt
+                              ? formatHistoryTimestamp(entry.createdAt)
+                              : `기록 ${index + 1}`}
+                          </p>
+                          <p className="text-yellow-800 whitespace-pre-line">{entry.message}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-yellow-800">아직 등록된 피드백이 없습니다.</p>
+                  )}
+                </div>
               </div>
             </div>
             <button
