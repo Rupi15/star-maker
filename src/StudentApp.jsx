@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import starstar from './assets/starstar.jpg';
 import './App.css';
+import { createHistoryEntry, parseHistoryData, formatHistoryTimestamp } from './utils/historyUtils';
 
 export default function StudentApp() {
   const [userName, setUserName] = useState('');
@@ -16,8 +17,8 @@ export default function StudentApp() {
   const [showNameInput, setShowNameInput] = useState(true);
   const [alreadyStar, setAlreadyStar] = useState(false);
   const [question, setQuestion] = useState('');
-  const [savedQuestion, setSavedQuestion] = useState('');
-  const [teacherFeedback, setTeacherFeedback] = useState('');
+  const [questionHistory, setQuestionHistory] = useState([]);
+  const [feedbackHistory, setFeedbackHistory] = useState([]);
 
   useEffect(() => {
     const applyBackgroundSize = () => {
@@ -84,7 +85,13 @@ export default function StudentApp() {
   const handlePasswordSubmit = async () => {
     if (isNewUser) {
       const { data, error } = await supabase.from('user_progress')
-        .insert({ user_name: inputName, password, cell_data: {}, student_question: '', teacher_feedback: '' })
+         .insert({
+          user_name: inputName,
+          password,
+          cell_data: {},
+          student_question: JSON.stringify([]),
+          teacher_feedback: JSON.stringify([]),
+        })
         .select()
         .single();
       if (error) {
@@ -95,8 +102,8 @@ export default function StudentApp() {
       setUserId(data.id);
       setCellData(data.cell_data || {});
       setQuestion('');
-      setSavedQuestion(data.student_question || '');
-      setTeacherFeedback(data.teacher_feedback || '');
+      setQuestionHistory(parseHistoryData(data?.student_question));
+      setFeedbackHistory(parseHistoryData(data?.teacher_feedback));
       setShowTable(true);
       setShowPasswordPrompt(false);
     } else {
@@ -106,8 +113,8 @@ export default function StudentApp() {
         setUserId(user.id);
         setCellData(user.cell_data || {});
         setQuestion('');
-        setSavedQuestion(user.question || '');
-        setTeacherFeedback(user.feedback || '');
+        setQuestionHistory(parseHistoryData(user.student_question));
+        setFeedbackHistory(parseHistoryData(user.teacher_feedback));
         setShowTable(true);
         setShowPasswordPrompt(false);
         const progress = Object.values(user.cell_data || {}).filter(Boolean).length;
@@ -168,8 +175,8 @@ export default function StudentApp() {
     setInputName('');
     setPassword('');
     setQuestion('');
-    setSavedQuestion('');
-    setTeacherFeedback('');
+    setQuestionHistory([]);
+    setFeedbackHistory([]);
   };
 
   const progressCount = Object.values(cellData).filter(Boolean).length;
@@ -186,9 +193,12 @@ export default function StudentApp() {
       return;
     }
 
+    const newHistoryEntry = createHistoryEntry(trimmedQuestion);
+    const updatedHistory = [...questionHistory, newHistoryEntry];
+    
     const { data, error } = await supabase
       .from('user_progress')
-      .update({ student_question: trimmedQuestion })
+      .update({ student_question: JSON.stringify(updatedHistory) })
       .eq('id', userId)
       .select('student_question, teacher_feedback')
       .single();
@@ -199,8 +209,20 @@ export default function StudentApp() {
       return;
     }
 
-    setSavedQuestion(data?.student_question || '');
-    setTeacherFeedback(data?.teacher_feedback || '');
+    const updatedQuestionsFromDb = parseHistoryData(data?.student_question);
+    const nextQuestions =
+      updatedQuestionsFromDb.length || !data?.student_question
+        ? updatedQuestionsFromDb
+        : updatedHistory;
+    setQuestionHistory(nextQuestions);
+
+    const updatedFeedbackFromDb = parseHistoryData(data?.teacher_feedback);
+    const nextFeedback =
+      updatedFeedbackFromDb.length || !data?.teacher_feedback
+        ? updatedFeedbackFromDb
+        : feedbackHistory;
+    setFeedbackHistory(nextFeedback);
+
     setQuestion('');
     alert('질문이 제출되었습니다.');
   };
@@ -311,17 +333,49 @@ export default function StudentApp() {
               >
                 질문 제출
               </button>
-              <div className="mt-6">
+              <div className="mt-6 text-left">
                 <p className="font-semibold text-yellow-900">제출한 질문</p>
-                <p className="text-yellow-800 whitespace-pre-line">
-                  {savedQuestion ? savedQuestion : '아직 제출한 질문이 없습니다.'}
-                </p>
+                {questionHistory.length > 0 ? (
+                  <ul className="mt-2 space-y-3">
+                    {questionHistory.map((entry, index) => (
+                      <li
+                        key={`${entry.createdAt ?? 'question'}-${index}`}
+                        className="bg-white/70 border border-yellow-200 rounded-md p-3"
+                      >
+                        <p className="text-xs text-yellow-600 mb-1">
+                          {entry.createdAt
+                            ? formatHistoryTimestamp(entry.createdAt)
+                            : `기록 ${index + 1}`}
+                        </p>
+                        <p className="text-yellow-800 whitespace-pre-line">{entry.message}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-yellow-800">아직 제출한 질문이 없습니다.</p>
+                )}
               </div>
-              <div className="mt-4">
+               <div className="mt-4 text-left">
                 <p className="font-semibold text-yellow-900">교사 피드백</p>
-                <p className="text-yellow-800 whitespace-pre-line">
-                  {teacherFeedback ? teacherFeedback : '아직 등록된 피드백이 없습니다.'}
-                </p>
+                 {feedbackHistory.length > 0 ? (
+                  <ul className="mt-2 space-y-3">
+                    {feedbackHistory.map((entry, index) => (
+                      <li
+                        key={`${entry.createdAt ?? 'feedback'}-${index}`}
+                        className="bg-white/70 border border-yellow-200 rounded-md p-3"
+                      >
+                        <p className="text-xs text-yellow-600 mb-1">
+                          {entry.createdAt
+                            ? formatHistoryTimestamp(entry.createdAt)
+                            : `기록 ${index + 1}`}
+                        </p>
+                        <p className="text-yellow-800 whitespace-pre-line">{entry.message}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-yellow-800">아직 등록된 피드백이 없습니다.</p>
+                )}
               </div>
             </div>
             <button

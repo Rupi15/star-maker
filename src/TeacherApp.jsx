@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import './App.css';
+import { createHistoryEntry, parseHistoryData, formatHistoryTimestamp } from './utils/historyUtils';
 
 export default function TeacherApp() {
   const [students, setStudents] = useState([]);
@@ -9,7 +10,7 @@ export default function TeacherApp() {
   const [authenticated, setAuthenticated] = useState(false);
   const [deleteConfirmPassword, setDeleteConfirmPassword] = useState('');
   const [showDeletePrompt, setShowDeletePrompt] = useState(false);
-  const [feedbackInput, setFeedbackInput] = useState('');
+  const [newFeedback, setNewFeedback] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState(null);
   const [isSavingFeedback, setIsSavingFeedback] = useState(false);
 
@@ -34,20 +35,22 @@ export default function TeacherApp() {
     }
 
     if (data) {
-      setStudents(data);
+       const normalized = data.map((student) => ({
+        ...student,
+        student_question_history: parseHistoryData(student.student_question),
+        teacher_feedback_history: parseHistoryData(student.teacher_feedback),
+      }));
+
+      setStudents(normalized);
       if (selectedStudent) {
-        const updatedSelected = data.find((student) => student.id === selectedStudent.id);
+        const updatedSelected = normalized.find((student) => student.id === selectedStudent.id);
         setSelectedStudent(updatedSelected || null);
       }
     }
   };
 
   useEffect(() => {
-    if (selectedStudent) {
-      setFeedbackInput(selectedStudent.teacher_feedback ?? '');
-    } else {
-      setFeedbackInput('');
-    }
+    setNewFeedback('');
     setFeedbackStatus(null);
   }, [selectedStudent]);
 
@@ -58,13 +61,23 @@ export default function TeacherApp() {
   const handleSaveFeedback = async () => {
     if (!selectedStudent) return;
 
+    const trimmedFeedback = newFeedback.trim();
+    if (!trimmedFeedback) {
+      setFeedbackStatus({ type: 'error', message: '피드백을 입력해주세요.' });
+      return;
+    }
+
     const targetId = selectedStudent.id;
     setIsSavingFeedback(true);
     setFeedbackStatus(null);
 
+     const newEntry = createHistoryEntry(trimmedFeedback);
+    const updatedHistory = [...(selectedStudent.teacher_feedback_history || []), newEntry];
+    const payload = JSON.stringify(updatedHistory);
+
     const { data, error } = await supabase
       .from('user_progress')
-      .update({ teacher_feedback: feedbackInput })
+      .update({ teacher_feedback: payload })
       .eq('id', targetId)
       .select('teacher_feedback')
       .single();
@@ -76,18 +89,32 @@ export default function TeacherApp() {
       return;
     }
 
-    const updatedFeedback = data?.teacher_feedback ?? feedbackInput;
+    const storedValue = data?.teacher_feedback ?? payload;
+    const nextHistory = parseHistoryData(storedValue);
 
     setStudents((prevStudents) =>
       prevStudents.map((student) =>
-        student.id === targetId ? { ...student, teacher_feedback: updatedFeedback } : student
+         student.id === targetId
+          ? {
+              ...student,
+              teacher_feedback: storedValue,
+              teacher_feedback_history: nextHistory,
+            }
+          : student
       )
     );
 
     setSelectedStudent((prev) =>
-      prev && prev.id === targetId ? { ...prev, teacher_feedback: updatedFeedback } : prev
+      prev && prev.id === targetId
+        ? {
+            ...prev,
+            teacher_feedback: storedValue,
+            teacher_feedback_history: nextHistory,
+          }
+        : prev
     );
 
+    setNewFeedback('');
     setFeedbackStatus({ type: 'success', message: '피드백이 저장되었습니다.' });
     setIsSavingFeedback(false);
   };
@@ -159,8 +186,7 @@ export default function TeacherApp() {
     }
   };
 
-  const feedbackHasChanged =
-    selectedStudent && feedbackInput !== (selectedStudent.teacher_feedback ?? '');
+  const feedbackHasChanged = Boolean(selectedStudent && newFeedback.trim());
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center py-12 px-4 font-['Noto_Sans_KR']">
@@ -217,10 +243,24 @@ export default function TeacherApp() {
               </h3>
               <div className="bg-white/80 border border-indigo-200 rounded-lg p-4 mb-6 text-left shadow-sm">
                 <h4 className="text-lg font-semibold text-indigo-700 mb-2">학생 질문</h4>
-                {selectedStudent.student_question ? (
-                  <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-                    {selectedStudent.student_question}
-                  </p>
+                 {selectedStudent.student_question_history?.length ? (
+                  <ul className="space-y-3">
+                    {selectedStudent.student_question_history.map((entry, index) => (
+                      <li
+                        key={`${entry.createdAt ?? 'question'}-${index}`}
+                        className="bg-white border border-indigo-100 rounded-md p-3"
+                      >
+                        <p className="text-xs text-indigo-500 mb-1">
+                          {entry.createdAt
+                            ? formatHistoryTimestamp(entry.createdAt)
+                            : `기록 ${index + 1}`}
+                        </p>
+                        <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                          {entry.message}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
                   <p className="text-sm text-gray-500 italic">
                     학생이 아직 질문을 남기지 않았습니다.
@@ -229,17 +269,46 @@ export default function TeacherApp() {
               </div>
               <div className="bg-white/80 border border-indigo-200 rounded-lg p-4 mb-6 text-left shadow-sm">
                 <h4 className="text-lg font-semibold text-indigo-700 mb-2">교사 피드백</h4>
-                <textarea
-                  value={feedbackInput}
-                  onChange={(e) => {
-                    if (feedbackStatus) {
-                      setFeedbackStatus(null);
-                    }
-                    setFeedbackInput(e.target.value);
-                  }}
-                  placeholder="학생에게 전하고 싶은 피드백을 입력해주세요."
-                  className="w-full border border-indigo-200 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[120px] resize-y"
-                />
+                 {selectedStudent.teacher_feedback_history?.length ? (
+                  <ul className="space-y-3">
+                    {selectedStudent.teacher_feedback_history.map((entry, index) => (
+                      <li
+                        key={`${entry.createdAt ?? 'feedback'}-${index}`}
+                        className="bg-white border border-indigo-100 rounded-md p-3"
+                      >
+                        <p className="text-xs text-indigo-500 mb-1">
+                          {entry.createdAt
+                            ? formatHistoryTimestamp(entry.createdAt)
+                            : `기록 ${index + 1}`}
+                        </p>
+                        <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                          {entry.message}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">
+                    아직 등록된 피드백이 없습니다.
+                  </p>
+                )}
+                <div className="mt-4">
+                  <label htmlFor="teacher-feedback-input" className="block text-sm font-medium text-indigo-700 mb-1">
+                    새로운 피드백 작성
+                  </label>
+                  <textarea
+                    id="teacher-feedback-input"
+                    value={newFeedback}
+                    onChange={(e) => {
+                      if (feedbackStatus) {
+                        setFeedbackStatus(null);
+                      }
+                      setNewFeedback(e.target.value);
+                    }}
+                    placeholder="학생에게 전하고 싶은 피드백을 입력해주세요."
+                    className="w-full border border-indigo-200 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 min-h-[120px] resize-y"
+                  />
+                </div>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 gap-2">
                   {feedbackStatus && (
                     <span
